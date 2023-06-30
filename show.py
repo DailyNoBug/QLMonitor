@@ -5,6 +5,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from Serialbotton import SerialPortWidget
 import Serialbotton
 from timeseries import TimeSeriesChartWidget
+import subprocess
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
