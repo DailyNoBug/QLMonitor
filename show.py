@@ -1,11 +1,10 @@
 import sys
-import serial
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout
-from PyQt5.QtCore import QThread, pyqtSignal
-from Serialbotton import SerialPortWidget
+# from Serialbotton import SerialPortWidget
 import Serialbotton
 from timeseries import TimeSeriesChartWidget
-import subprocess
+from timeseries import start_times,durations,labels
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -14,20 +13,20 @@ class MainWindow(QMainWindow):
         # self.reader_thread = SerialReaderThread(Serialbotton.selected_port)
         # self.reader_thread.dataReceived.connect(self.handleDataReceive)
         # self.reader_thread.start()
-
-        start_times = [0, 2, 4, 7]  # 每个块的开始时间
-        durations = [2, 3, 1, 4]  # 每个块的持续时间
-        labels = ['State 1', 'State 2', 'State 3', 'State 4']  # 每个块的标签
+        global start_times,durations,labels
         self.chart_widget.plot_blocks(start_times, durations, labels)
 
-        self.serial_botton_widget = SerialPortWidget()
-        print(type(self.serial_botton_widget))
+        self.serial_botton_widget = Serialbotton.SerialPortWidget()
+
+        self.reader_thread = self.serial_botton_widget.serial_thread
+        self.reader_thread.dataReceived.connect(self.chart_widget.update_images)
+        self.reader_thread.start()
 
         time_layout = QVBoxLayout()
         below_layout = QHBoxLayout()
-        time_layout.addWidget(self.chart_widget,2)  #添加时间轴界面
+        time_layout.addWidget(self.chart_widget,1)  #添加时间轴界面
         below_layout.addWidget(self.serial_botton_widget)
-        time_layout.addLayout(below_layout,1)  #将下方的水平布局管理器加入
+        time_layout.addLayout(below_layout,2)  #将下方的水平布局管理器加入
 
         central_widget = QWidget()
         central_widget.setLayout(time_layout)
@@ -35,9 +34,9 @@ class MainWindow(QMainWindow):
     def handleDataReceive(self,data):
         print(f'Data receive: {data}')
 
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    global window
     window = MainWindow()
     window.setWindowTitle("QLMonitor")
     window.show()

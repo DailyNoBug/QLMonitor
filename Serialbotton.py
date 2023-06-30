@@ -1,7 +1,14 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QComboBox, QTextEdit, QHBoxLayout
-import serial
 from PyQt5.QtCore import QThread, pyqtSignal
+import re
+import serial
+
 selected_port = '/dev/ttyUSB0'
+
+Tick = 0
+endstr = ""
+beginstr = ""
+
 class SerialReaderThread(QThread):
     dataReceived = pyqtSignal(str)
     def __init__(self,port):
@@ -64,3 +71,4 @@ class SerialPortWidget(QWidget):
 
     def handle_data_received(self, data):
         self.text_edit.append(data)
+        # print("Serialbotton"+data)
